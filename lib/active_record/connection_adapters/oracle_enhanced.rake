@@ -82,7 +82,7 @@ namespace :db do
     redefine_task :clone_structure => [ "db:structure:dump", "db:test:purge" ] do |existing_actions|
       abcs = ActiveRecord::Base.configurations
       rails_env = defined?(Rails.env) ? Rails.env : RAILS_ENV
-      if abcs[rails_env]['adapter'] == 'oracle_enhanced' && abcs['test']['adapter'] == 'oracle_enhanced'
+      if abcs[rails_env]['adapter'] == 'oracle_enhanced' && abcs['jenkins']['adapter'] == 'oracle_enhanced'
         ActiveRecord::Base.establish_connection(:test)
         ActiveRecord::Base.connection.execute_structure_dump(File.read("db/#{rails_env}_structure.sql"))
       else
@@ -92,8 +92,8 @@ namespace :db do
 
     redefine_task :purge => :environment do |existing_actions|
       abcs = ActiveRecord::Base.configurations
-      if abcs['test']['adapter'] == 'oracle_enhanced'
-        ActiveRecord::Base.establish_connection(:test)
+      if abcs['jenkins']['adapter'] == 'oracle_enhanced'
+        ActiveRecord::Base.establish_connection(:jenkins)
         ActiveRecord::Base.connection.execute_structure_dump(ActiveRecord::Base.connection.full_drop)
         ActiveRecord::Base.connection.execute("PURGE RECYCLEBIN") rescue nil
       else
